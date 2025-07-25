@@ -1,0 +1,144 @@
+plugins:
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.0
+  NewCops: enable
+  Exclude:
+    - 'vendor/**/*'
+    - 'spec/fixtures/**/*'
+    - 'spec/test_data/**/*'
+    - '.bundle/**/*'
+
+# 日本語コメントを許可
+Style/AsciiComments:
+  Enabled: false
+
+# 行の長さを緩和
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'spec/**/*'
+
+# メソッドの長さを緩和
+Metrics/MethodLength:
+  Max: 30
+  Exclude:
+    - 'spec/**/*'
+
+# クラスの長さを緩和
+Metrics/ClassLength:
+  Max: 200
+  Exclude:
+    - 'spec/**/*'
+
+# ABCサイズを緩和
+Metrics/AbcSize:
+  Max: 25
+  Exclude:
+    - 'spec/**/*'
+
+# 複雑度を緩和
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+# 知覚的複雑度を緩和
+Metrics/PerceivedComplexity:
+  Max: 12
+  Exclude:
+    - 'xbrl_parser.rb'
+
+# ブロックの長さを緩和（テストで長いブロックを許可）
+Metrics/BlockLength:
+  Max: 25
+  Exclude:
+    - 'spec/**/*'
+    - '*.gemspec'
+
+# ドキュメント不要
+Style/Documentation:
+  Enabled: false
+
+# if修飾子の使用を推奨しない
+Style/IfUnlessModifier:
+  Enabled: false
+
+# ハッシュの新記法を強制しない
+Style/HashSyntax:
+  EnforcedStyle: ruby19_no_mixed_keys
+
+# 文字列リテラルの凍結を強制しない
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# ガード句を強制しない
+Style/GuardClause:
+  Enabled: false
+
+# RSpec固有の設定
+RSpec/ExampleLength:
+  Max: 25
+
+RSpec/MultipleExpectations:
+  Max: 15
+
+RSpec/NestedGroups:
+  Max: 5
+
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/integration/**/*'
+    - 'spec/unit/xbrl_parser_spec.rb'
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+
+RSpec/MessageSpies:
+  Enabled: false
+
+RSpec/IteratedExpectation:
+  Enabled: false
+
+RSpec/UnspecifiedException:
+  Enabled: false
+
+RSpec/MultipleDescribes:
+  Enabled: false
+
+# メソッド名の命名規則を緩和
+Naming/PredicateMethod:
+  Enabled: false
+
+# RSpecでのlet!の使用を許可
+RSpec/LetSetup:
+  Enabled: false
+
+# 名前付きsubjectの使用を強制しない
+RSpec/NamedSubject:
+  Enabled: false
+
+# RSpecでのinstance_variableの使用を許可
+RSpec/InstanceVariable:
+  Enabled: false
+
+# RSpecでのverify_doublesを強制しない（既存コードとの互換性）
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+# before(:each)の使用を許可
+RSpec/BeforeAfterAll:
+  Enabled: false
+
+# コンテキストの説明でのwhenの使用を許可
+RSpec/ContextWording:
+  Enabled: false
+
+# 空行の設定を緩和
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: false
+
+Layout/EmptyLinesAroundClassBody:
+  Enabled: false
+
+Layout/EmptyLinesAroundModuleBody:
+  Enabled: false
