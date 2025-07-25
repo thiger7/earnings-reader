@@ -1,0 +1,38 @@
+development:
+  edinet:
+    api_key: <%= ENV['EDINET_API_KEY'] %>
+    base_url: 'https://api.edinet-fsa.go.jp/api/v2'
+  
+  aws:
+    access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+    secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+    region: <%= ENV['AWS_REGION'] || 'ap-northeast-1' %>
+  
+  gemini:
+    api_key: <%= ENV['GEMINI_API_KEY'] %>
+
+test:
+  edinet:
+    api_key: 'test_api_key_for_rspec'
+    base_url: 'https://api.edinet-fsa.go.jp/api/v2'
+  
+  aws:
+    access_key_id: 'test_aws_access_key'
+    secret_access_key: 'test_aws_secret_key'
+    region: 'ap-northeast-1'
+  
+  gemini:
+    api_key: 'test_gemini_api_key'
+
+production:
+  edinet:
+    api_key: <%= ENV['EDINET_API_KEY'] %>
+    base_url: 'https://api.edinet-fsa.go.jp/api/v2'
+  
+  aws:
+    access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+    secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+    region: <%= ENV['AWS_REGION'] || 'ap-northeast-1' %>
+  
+  gemini:
+    api_key: <%= ENV['GEMINI_API_KEY'] %>

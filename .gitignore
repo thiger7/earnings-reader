@@ -26,9 +26,6 @@
 .env
 .env.local
 
-# Configuration files
-config/settings.yml
-
 # Log files
 *.log
 
