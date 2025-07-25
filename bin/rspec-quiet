@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# 出力を抑制してテスト構造のみを表示するスクリプト
+
+# 一時的にSTDOUTとSTDERRをリダイレクトしてテストを実行
+# テスト結果の構造のみを表示
+
+if [ $# -eq 0 ]; then
+    echo "テスト実行中（出力抑制）..."
+    bundle exec rspec --format documentation 2>/dev/null | grep -E "^[[:space:]]*[A-Z]|^[[:space:]]*#|^[[:space:]]*[a-z]|^[[:space:]]*Finished|^[[:space:]]*[0-9]+ examples"
+else
+    echo "テスト実行中: $1"
+    bundle exec rspec --format documentation "$1" 2>/dev/null | grep -E "^[[:space:]]*[A-Z]|^[[:space:]]*#|^[[:space:]]*[a-z]|^[[:space:]]*Finished|^[[:space:]]*[0-9]+ examples"
+fi

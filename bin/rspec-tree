@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# RSpecのテスト構造だけを表示するスクリプト
+
+if [ $# -eq 0 ]; then
+    echo "RSpecテスト構造を表示します（全ファイル）"
+    bundle exec rspec --dry-run --format documentation
+else
+    echo "RSpecテスト構造を表示します: $1"
+    bundle exec rspec --dry-run --format documentation "$1"
+fi
