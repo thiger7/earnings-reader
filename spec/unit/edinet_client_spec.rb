@@ -81,11 +81,11 @@ RSpec.describe EdinetClient do
     end
   end
 
-  describe '#filter_kessan_tanshin' do
+  describe '#filter_earning_reports' do
     context '有効な書類データが渡される場合' do
       it '決算短信のみがフィルタリングされる' do
         documents = sample_response
-        result = client.filter_kessan_tanshin(documents)
+        result = client.filter_earning_reports(documents)
 
         expect(result).to be_an(Array)
         expect(result.length).to eq(2)
@@ -97,7 +97,7 @@ RSpec.describe EdinetClient do
     end
 
     context '決算短信が含まれていない場合' do
-      let(:non_kessan_response) do
+      let(:non_earning_response) do
         {
           'results' => [
             {
@@ -110,21 +110,21 @@ RSpec.describe EdinetClient do
       end
 
       it '空の配列が返される' do
-        result = client.filter_kessan_tanshin(non_kessan_response)
+        result = client.filter_earning_reports(non_earning_response)
         expect(result).to eq([])
       end
     end
 
     context 'nilが渡される場合' do
       it '空の配列が返される' do
-        result = client.filter_kessan_tanshin(nil)
+        result = client.filter_earning_reports(nil)
         expect(result).to eq([])
       end
     end
 
     context 'resultsキーがない場合' do
       it '空の配列が返される' do
-        result = client.filter_kessan_tanshin({})
+        result = client.filter_earning_reports({})
         expect(result).to eq([])
       end
     end

@@ -1,12 +1,12 @@
 require_relative '../spec_helper'
-require_relative '../../app/kessan_analyzer'
+require_relative '../../app/earning_analyzer'
 
-RSpec.describe KessanAnalyzer do
+RSpec.describe EarningAnalyzer do
   let(:analyzer) { described_class.new }
   let(:test_date) { Date.new(2023, 12, 1) }
   let(:mock_client) { double('EdinetClient') }
   let(:sample_documents) { sample_edinet_response }
-  let(:sample_kessan_docs) { sample_documents['results'] }
+  let(:sample_earning_docs) { sample_documents['results'] }
 
   before do
     # モックオブジェクトをセット
@@ -39,12 +39,12 @@ RSpec.describe KessanAnalyzer do
     end
   end
 
-  describe '#analyze_kessan_tanshin' do
+  describe '#analyze_earning_reports' do
     context '正常なケース' do
       before do
         # モック設定
         allow(mock_client).to receive(:fetch_documents).with(test_date).and_return(sample_documents)
-        allow(mock_client).to receive(:filter_kessan_tanshin).with(sample_documents).and_return(sample_kessan_docs)
+        allow(mock_client).to receive(:filter_earning_reports).with(sample_documents).and_return(sample_earning_docs)
 
         # process_documentのモック
         allow(analyzer).to receive(:process_document).and_return({
@@ -65,25 +65,25 @@ RSpec.describe KessanAnalyzer do
       end
 
       it '分析が正常に実行される' do
-        expect { analyzer.analyze_kessan_tanshin(test_date) }.to output(/決算短信分析システム/).to_stdout
+        expect { analyzer.analyze_earning_reports(test_date) }.to output(/決算短信分析システム/).to_stdout
 
         expect(mock_client).to have_received(:fetch_documents).with(test_date)
-        expect(mock_client).to have_received(:filter_kessan_tanshin).with(sample_documents)
+        expect(mock_client).to have_received(:filter_earning_reports).with(sample_documents)
       end
 
       it 'process_documentが各書類に対して呼ばれる' do
-        analyzer.analyze_kessan_tanshin(test_date)
+        analyzer.analyze_earning_reports(test_date)
 
-        expect(analyzer).to have_received(:process_document).exactly(sample_kessan_docs.length).times
+        expect(analyzer).to have_received(:process_document).exactly(sample_earning_docs.length).times
       end
 
       it 'display_summaryが呼ばれる' do
-        analyzer.analyze_kessan_tanshin(test_date)
+        analyzer.analyze_earning_reports(test_date)
         expect(analyzer).to have_received(:display_summary)
       end
 
       it 'save_resultsが呼ばれる' do
-        analyzer.analyze_kessan_tanshin(test_date)
+        analyzer.analyze_earning_reports(test_date)
         expect(analyzer).to have_received(:save_results)
       end
     end
@@ -94,20 +94,20 @@ RSpec.describe KessanAnalyzer do
       end
 
       it 'エラーメッセージが表示されて処理が終了する' do
-        expect { analyzer.analyze_kessan_tanshin(test_date) }.to output(/書類の取得に失敗しました/).to_stdout
+        expect { analyzer.analyze_earning_reports(test_date) }.to output(/書類の取得に失敗しました/).to_stdout
       end
     end
 
     context '決算短信が0件の場合' do
       before do
         allow(mock_client).to receive(:fetch_documents).with(test_date).and_return(sample_documents)
-        allow(mock_client).to receive(:filter_kessan_tanshin).with(sample_documents).and_return([])
+        allow(mock_client).to receive(:filter_earning_reports).with(sample_documents).and_return([])
         allow(analyzer).to receive(:display_summary)
         allow(analyzer).to receive(:save_results)
       end
 
       it '決算短信数0と表示される' do
-        expect { analyzer.analyze_kessan_tanshin(test_date) }.to output(/決算短信数: 0/).to_stdout
+        expect { analyzer.analyze_earning_reports(test_date) }.to output(/決算短信数: 0/).to_stdout
       end
     end
   end
@@ -285,7 +285,7 @@ RSpec.describe KessanAnalyzer do
     it 'JSONファイルが保存される' do
       analyzer.send(:save_results, sample_results, test_date)
 
-      expected_filename = "./spec/test_data/json/kessan_analysis_#{test_date.strftime('%Y%m%d')}.json"
+      expected_filename = "./spec/test_data/json/earning_analysis_#{test_date.strftime('%Y%m%d')}.json"
       expect(File.exist?(expected_filename)).to be true
 
       saved_data = JSON.parse(File.read(expected_filename))
@@ -294,7 +294,7 @@ RSpec.describe KessanAnalyzer do
     end
 
     it '保存成功メッセージが出力される' do
-      expected_filename = "./spec/test_data/json/kessan_analysis_#{test_date.strftime('%Y%m%d')}.json"
+      expected_filename = "./spec/test_data/json/earning_analysis_#{test_date.strftime('%Y%m%d')}.json"
       expect { analyzer.send(:save_results, sample_results, test_date) }.to output(/結果を保存しました: #{expected_filename}/).to_stdout
     end
   end

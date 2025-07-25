@@ -87,17 +87,17 @@ bundle exec rubocop -a
 ### 基本的な実行
 ```bash
 # 昨日の決算短信を分析
-ruby kessan_analyzer.rb
+ruby app/earning_analyzer.rb
 
 # 特定の日付を指定
-ruby kessan_analyzer.rb 2025-07-24
+ruby app/earning_analyzer.rb 2025-07-24
 ```
 
 ### 個別機能のテスト
 
 #### EDINET APIのテスト
 ```bash
-ruby edinet_client.rb
+ruby app/edinet_client.rb
 ```
 
 #### 特定企業のXBRL解析
@@ -114,7 +114,7 @@ puts JSON.pretty_generate(data)
 
 ### ディレクトリ構造
 ```
-kessan_data/
+earning_data/
 ├── json/          # 分析結果JSON
 ├── pdf/           # PDFファイル（オプション）
 └── xbrl/          # XBRLファイル

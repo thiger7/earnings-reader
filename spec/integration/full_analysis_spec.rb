@@ -1,9 +1,9 @@
 require_relative '../spec_helper'
-require_relative '../../app/kessan_analyzer'
+require_relative '../../app/earning_analyzer'
 
 RSpec.describe 'Full Analysis Integration Test' do
   let(:test_date) { Date.new(2023, 12, 1) }
-  let(:analyzer) { KessanAnalyzer.new }
+  let(:analyzer) { EarningAnalyzer.new }
   let(:test_zip_path) { './spec/test_data/integration_test.zip' }
 
   before do
@@ -21,13 +21,13 @@ RSpec.describe 'Full Analysis Integration Test' do
     context 'モックを使用した統合テスト' do
       let(:mock_client) { instance_double(EdinetClient) }
       let(:sample_documents) { sample_edinet_response }
-      let(:kessan_docs) { sample_documents['results'] }
+      let(:earning_docs) { sample_documents['results'] }
 
       before do
         # analyzerのclientインスタンスをモック化
         analyzer.instance_variable_set(:@client, mock_client)
         allow(mock_client).to receive(:fetch_documents).with(test_date).and_return(sample_documents)
-        allow(mock_client).to receive(:filter_kessan_tanshin).with(sample_documents).and_return(kessan_docs)
+        allow(mock_client).to receive(:filter_earning_reports).with(sample_documents).and_return(earning_docs)
 
         # XBRLダウンロードをモック化
         allow(mock_client).to receive(:download_xbrl) do |_doc_id, filename|
@@ -43,15 +43,15 @@ RSpec.describe 'Full Analysis Integration Test' do
 
       it '全体のフローが正常に動作する' do
         # 分析を実行
-        expect { analyzer.analyze_kessan_tanshin(test_date) }.not_to raise_error
+        expect { analyzer.analyze_earning_reports(test_date) }.not_to raise_error
 
         # 結果ファイルが作成されることを確認
-        result_file = "./spec/test_data/integration/json/kessan_analysis_#{test_date.strftime('%Y%m%d')}.json"
+        result_file = "./spec/test_data/integration/json/earning_analysis_#{test_date.strftime('%Y%m%d')}.json"
         expect(File.exist?(result_file)).to be true
 
         # 結果ファイルの内容を検証
         result_data = JSON.parse(File.read(result_file))
-        expect(result_data['total_count']).to eq(kessan_docs.length)
+        expect(result_data['total_count']).to eq(earning_docs.length)
         expect(result_data['results']).to be_an(Array)
         expect(result_data['results']).not_to be_empty
 
@@ -79,17 +79,17 @@ RSpec.describe 'Full Analysis Integration Test' do
       end
 
       it 'API呼び出しが正しい順序で実行される' do
-        analyzer.analyze_kessan_tanshin(test_date)
+        analyzer.analyze_earning_reports(test_date)
 
         expect(mock_client).to have_received(:fetch_documents).with(test_date).ordered
-        expect(mock_client).to have_received(:filter_kessan_tanshin).with(sample_documents).ordered
-        expect(mock_client).to have_received(:download_xbrl).exactly(kessan_docs.length).times
+        expect(mock_client).to have_received(:filter_earning_reports).with(sample_documents).ordered
+        expect(mock_client).to have_received(:download_xbrl).exactly(earning_docs.length).times
       end
 
       it '各書類のXBRLファイルが正しくダウンロードされる' do
-        analyzer.analyze_kessan_tanshin(test_date)
+        analyzer.analyze_earning_reports(test_date)
 
-        kessan_docs.each do |doc|
+        earning_docs.each do |doc|
           expected_filename = "xbrl/#{doc['secCode']}_#{doc['docID']}.xbrl"
           expect(mock_client).to have_received(:download_xbrl).with(doc['docID'], expected_filename)
         end
@@ -106,24 +106,24 @@ RSpec.describe 'Full Analysis Integration Test' do
       it 'API呼び出し失敗時に適切にハンドリングされる' do
         allow(mock_client).to receive(:fetch_documents).and_return(nil)
 
-        expect { analyzer.analyze_kessan_tanshin(test_date) }.to output(/書類の取得に失敗しました/).to_stdout
+        expect { analyzer.analyze_earning_reports(test_date) }.to output(/書類の取得に失敗しました/).to_stdout
       end
 
       it '決算短信が0件の場合に適切にハンドリングされる' do
-        allow(mock_client).to receive_messages(fetch_documents: sample_edinet_response, filter_kessan_tanshin: [])
+        allow(mock_client).to receive_messages(fetch_documents: sample_edinet_response, filter_earning_reports: [])
 
-        expect { analyzer.analyze_kessan_tanshin(test_date) }.to output(/決算短信数: 0/).to_stdout
+        expect { analyzer.analyze_earning_reports(test_date) }.to output(/決算短信数: 0/).to_stdout
       end
 
       it 'XBRLダウンロード失敗時にスキップされる' do
         sample_docs = sample_edinet_response['results']
-        allow(mock_client).to receive_messages(fetch_documents: sample_edinet_response, filter_kessan_tanshin: sample_docs, download_xbrl: false)
+        allow(mock_client).to receive_messages(fetch_documents: sample_edinet_response, filter_earning_reports: sample_docs, download_xbrl: false)
         allow(analyzer).to receive(:sleep)
 
-        expect { analyzer.analyze_kessan_tanshin(test_date) }.to output(/XBRLダウンロード失敗/).to_stdout
+        expect { analyzer.analyze_earning_reports(test_date) }.to output(/XBRLダウンロード失敗/).to_stdout
 
         # 結果ファイルは作成されるが、中身は空になる
-        result_file = "./spec/test_data/integration/json/kessan_analysis_#{test_date.strftime('%Y%m%d')}.json"
+        result_file = "./spec/test_data/integration/json/earning_analysis_#{test_date.strftime('%Y%m%d')}.json"
         expect(File.exist?(result_file)).to be true
 
         result_data = JSON.parse(File.read(result_file))
@@ -138,7 +138,7 @@ RSpec.describe 'Full Analysis Integration Test' do
 
       before do
         analyzer.instance_variable_set(:@client, mock_client)
-        allow(mock_client).to receive_messages(fetch_documents: sample_edinet_response, filter_kessan_tanshin: sample_docs)
+        allow(mock_client).to receive_messages(fetch_documents: sample_edinet_response, filter_earning_reports: sample_docs)
         allow(mock_client).to receive(:download_xbrl) do |_doc_id, filename|
           target_path = "./spec/test_data/integration/#{filename}.zip"
           FileUtils.cp(test_zip_path, target_path)
@@ -148,9 +148,9 @@ RSpec.describe 'Full Analysis Integration Test' do
       end
 
       it '抽出された財務データが正しい形式である' do
-        analyzer.analyze_kessan_tanshin(test_date)
+        analyzer.analyze_earning_reports(test_date)
 
-        result_file = "./spec/test_data/integration/json/kessan_analysis_#{test_date.strftime('%Y%m%d')}.json"
+        result_file = "./spec/test_data/integration/json/earning_analysis_#{test_date.strftime('%Y%m%d')}.json"
         result_data = JSON.parse(File.read(result_file))
 
         result_data['results'].each do |result|
@@ -174,9 +174,9 @@ RSpec.describe 'Full Analysis Integration Test' do
       end
 
       it '分析結果が適切に生成される' do
-        analyzer.analyze_kessan_tanshin(test_date)
+        analyzer.analyze_earning_reports(test_date)
 
-        result_file = "./spec/test_data/integration/json/kessan_analysis_#{test_date.strftime('%Y%m%d')}.json"
+        result_file = "./spec/test_data/integration/json/earning_analysis_#{test_date.strftime('%Y%m%d')}.json"
         result_data = JSON.parse(File.read(result_file))
 
         result_data['results'].each do |result|
@@ -214,7 +214,7 @@ RSpec.describe 'Full Analysis Integration Test' do
 
       before do
         analyzer.instance_variable_set(:@client, mock_client)
-        allow(mock_client).to receive_messages(fetch_documents: large_dataset, filter_kessan_tanshin: large_dataset['results'])
+        allow(mock_client).to receive_messages(fetch_documents: large_dataset, filter_earning_reports: large_dataset['results'])
         allow(mock_client).to receive(:download_xbrl) do |_doc_id, filename|
           target_path = "./spec/test_data/integration/#{filename}.zip"
           FileUtils.cp(test_zip_path, target_path)
@@ -224,9 +224,9 @@ RSpec.describe 'Full Analysis Integration Test' do
       end
 
       it '大量データでもメモリリークなく処理できる' do
-        expect { analyzer.analyze_kessan_tanshin(test_date) }.not_to raise_error
+        expect { analyzer.analyze_earning_reports(test_date) }.not_to raise_error
 
-        result_file = "./spec/test_data/integration/json/kessan_analysis_#{test_date.strftime('%Y%m%d')}.json"
+        result_file = "./spec/test_data/integration/json/earning_analysis_#{test_date.strftime('%Y%m%d')}.json"
         result_data = JSON.parse(File.read(result_file))
 
         expect(result_data['total_count']).to eq(10)
@@ -245,11 +245,11 @@ RSpec.describe 'Full Analysis Integration Test' do
       it '実際のAPIから決算短信を取得できる' do
         # ネットワーク接続が必要なため、タイムアウトを設定
         expect do
-          real_analyzer.analyze_kessan_tanshin(recent_date)
+          real_analyzer.analyze_earning_reports(recent_date)
         end.not_to raise_error
 
         # 結果ファイルが作成されることを確認
-        result_file = "./kessan_data/json/kessan_analysis_#{recent_date.strftime('%Y%m%d')}.json"
+        result_file = "./kessan_data/json/earning_analysis_#{recent_date.strftime('%Y%m%d')}.json"
         expect(File.exist?(result_file)).to be true if File.exist?(result_file)
       end
     end

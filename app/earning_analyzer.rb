@@ -6,17 +6,17 @@ require_relative 'financial_metrics'
 require 'json'
 require 'fileutils'
 
-class KessanAnalyzer
+class EarningAnalyzer
   def initialize
     @client = EdinetClient.new
-    @data_dir = './kessan_data'
+    @data_dir = './earning_data'
     FileUtils.mkdir_p(@data_dir)
     FileUtils.mkdir_p("#{@data_dir}/json")
     FileUtils.mkdir_p("#{@data_dir}/pdf")
     FileUtils.mkdir_p("#{@data_dir}/xbrl")
   end
 
-  def analyze_kessan_tanshin(date = Date.today - 1)
+  def analyze_earning_reports(date = Date.today - 1)
     puts '=== 決算短信分析システム ==='
     puts "対象日付: #{date}"
     puts '=' * 50
@@ -27,12 +27,12 @@ class KessanAnalyzer
       return
     end
 
-    kessan_docs = @client.filter_kessan_tanshin(documents)
-    puts "\n決算短信数: #{kessan_docs.length}"
+    earning_docs = @client.filter_earning_reports(documents)
+    puts "\n決算短信数: #{earning_docs.length}"
 
     results = []
-    kessan_docs.each_with_index do |doc, index|
-      puts "\n[#{index + 1}/#{kessan_docs.length}] 処理中: #{doc['filerName']} (#{doc['secCode']})"
+    earning_docs.each_with_index do |doc, index|
+      puts "\n[#{index + 1}/#{earning_docs.length}] 処理中: #{doc['filerName']} (#{doc['secCode']})"
 
       result = process_document(doc)
       results << result if result
@@ -180,7 +180,7 @@ class KessanAnalyzer
   end
 
   def save_results(results, date)
-    filename = "#{@data_dir}/json/kessan_analysis_#{date.strftime('%Y%m%d')}.json"
+    filename = "#{@data_dir}/json/earning_analysis_#{date.strftime('%Y%m%d')}.json"
 
     File.write(filename, JSON.pretty_generate({
                                                 analysis_date: date.strftime('%Y-%m-%d'),
@@ -204,6 +204,6 @@ if __FILE__ == $PROGRAM_NAME
     target_date = Date.today - 1
   end
 
-  analyzer = KessanAnalyzer.new
-  analyzer.analyze_kessan_tanshin(target_date)
+  analyzer = EarningAnalyzer.new
+  analyzer.analyze_earning_reports(target_date)
 end

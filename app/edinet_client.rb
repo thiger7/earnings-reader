@@ -90,7 +90,7 @@ class EdinetClient
 
   public
 
-  def filter_kessan_tanshin(documents)
+  def filter_earning_reports(documents)
     return [] unless documents && documents['results']
 
     documents['results'].select do |doc|
