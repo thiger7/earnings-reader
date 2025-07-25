@@ -29,7 +29,7 @@ class GeminiClient
     return nil unless @client
 
     prompt = build_analysis_prompt(financial_data)
-    
+
     payload = {
       contents: [{
         parts: [{ text: prompt }]
