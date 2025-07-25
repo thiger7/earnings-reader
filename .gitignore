@@ -1,0 +1,51 @@
+# データディレクトリ
+/edinet_data/
+/kessan_data/
+
+# Bundler
+/.bundle/
+/vendor/bundle/
+
+# macOS
+.DS_Store
+
+# Ruby
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+
+# Environment files
+.env
+.env.local
+
+# Configuration files
+config/settings.yml
+
+# Log files
+*.log
+
+# Backup files
+*.bak
+*~
+
+# Security sensitive files
+*.pem
+*.key
+*.crt
+*.p12
+.env.*
+!.env.example
+credentials/
+secrets/
+
+# Temporary API key files
+api_keys/
+tokens/
